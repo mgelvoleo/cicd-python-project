@@ -1,24 +1,22 @@
-name: CI/CD Pipeline - Python to Kubernetes
+name: CICD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
-
+    branches:
+      - main
   pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      
       - name: Checkout Code
         uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
 
       - name: Install dependencies
         run: |
@@ -31,10 +29,17 @@ jobs:
           echo "🔍 Running flake8 linting..."
           flake8 . --count --max-line-length=100 --statistics
 
+      # 🧰 2. Security Scan
+      - name: Run Security Scan (bandit)
+        run: |
+          echo "🛡️ Running bandit security scan..."
+          bandit -r .
+
       - name: Run Unit Tests
         run: |
           echo "🧪 Running tests..."
           pytest -v
+
   build:
     needs: test
     runs-on: ubuntu-latest
